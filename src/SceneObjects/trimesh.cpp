@@ -99,17 +99,17 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
     normal.normalize();
 
     // Intersect ray with triangle ABC's supporting plane
-    float d = normal * a;
-    float t = (d - (normal * r.p)) / (normal * r.d);
-    Vec3d planarIntersect = r.p + (r.d * t);
+    double d = normal * a;
+    double t = (d - (normal * r.p)) / (normal * r.d);
+    Vec3d planarIntersect = r.at(t);
 
-    float alpha = ((c - b) ^ (planarIntersect - b)) * normal;
-    float beta  = ((a - c) ^ (planarIntersect - c)) * normal;
-    float gamma = ((b - a) ^ (planarIntersect - a)) * normal;
+    double alpha = ((c - b) ^ (planarIntersect - b)) * normal;
+    double beta  = ((a - c) ^ (planarIntersect - c)) * normal;
+    double gamma = ((b - a) ^ (planarIntersect - a)) * normal;
 
     // Check for intersect
     if (alpha >= 0 && beta >= 0 && gamma >= 0) {
-        float areaABC = ((b - a) ^ (c - a)) * normal;
+        double areaABC = ((b - a) ^ (c - a)) * normal;
 
         // finalize barycentric coordinates
         alpha /= areaABC;
