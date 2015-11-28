@@ -14,35 +14,32 @@ extern bool debugMode;
 // the color of that point.
 Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
 {
-  // YOUR CODE HERE
+    float diffuse  = 0.0;
+    float specular = 0.0;
+    Vec3d planarIntersect = r.p + (r.d * i.t);
+    Vec3d look = scene->getCamera().getEye() - planarIntersect;
+    look.normalize();
 
-  // For now, this method just returns the diffuse color of the object.
-  // This gives a single matte color for every distinct surface in the
-  // scene, and that's it.  Simple, but enough to get you started.
-  // (It's also inconsistent with the phong model...)
+    for (vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr) {
+        Light* pLight = *litr;
 
-  // Your mission is to fill in this method with the rest of the phong
-  // shading model, including the contributions of all the light sources.
+        // Diffuse contribution
+        Vec3d lightDirection = pLight->getDirection(planarIntersect);
+        lightDirection.normalize();
+        float curDiffuse = lightDirection * i.N;
+        diffuse += curDiffuse >= 0.0 ? curDiffuse : 0.0;
 
-  // When you're iterating through the lights,
-  // you'll want to use code that looks something
-  // like this:
-  //
-  // for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
-  // 		litr != scene->endLights(); 
-  // 		++litr )
-  // {
-  // 		Light* pLight = *litr;
-  // 		.
-  // 		.
-  // 		.
-  // }
+        // Specular contribution
+        Vec3d halfAngle = (look + lightDirection) / 2.0;
+        halfAngle.normalize();
+        float curSpecular = pow(halfAngle * i.N, shininess(i));
+        specular += curSpecular >= 0.0 ? curSpecular : 0.0;
+    }
+    // You will need to call both the distanceAttenuation() and
+    // shadowAttenuation() methods for each light source in order to
+    // compute shadows and light falloff.
 
-  // You will need to call both the distanceAttenuation() and
-  // shadowAttenuation() methods for each light source in order to
-  // compute shadows and light falloff.
-
-  return kd(i);
+    return ke(i) + ka(i) + (kd(i) * diffuse) + (ks(i) * specular);
 }
 
 TextureMap::TextureMap( string filename ) {

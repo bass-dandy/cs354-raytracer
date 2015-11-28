@@ -119,6 +119,7 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
         i.setUVCoordinates(Vec2d(alpha, beta));
         i.t = t;
         i.setMaterial(getMaterial());
+        i.setN(normal);
 
         return true;
     }
