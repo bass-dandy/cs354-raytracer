@@ -90,13 +90,38 @@ bool TrimeshFace::intersect(ray& r, isect& i) const {
 // intersection in u (alpha) and v (beta).
 bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 {
-
     const Vec3d& a = parent->vertices[ids[0]];
     const Vec3d& b = parent->vertices[ids[1]];
     const Vec3d& c = parent->vertices[ids[2]];
 
-    // YOUR CODE HERE
+    // Find normal to triangle ABC's plane; coordinates will be relative to a
+    Vec3d normal = (b - a) ^ (c - a);
+    normal.normalize();
 
+    // Intersect ray with triangle ABC's supporting plane
+    float d = normal * a;
+    float t = (d - (normal * r.p)) / (normal * r.d);
+    Vec3d planarIntersect = r.p + (r.d * t);
+
+    float alpha = ((c - b) ^ (planarIntersect - b)) * normal;
+    float beta  = ((a - c) ^ (planarIntersect - c)) * normal;
+    float gamma = ((b - a) ^ (planarIntersect - a)) * normal;
+
+    // Check for intersect
+    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+        float areaABC = ((b - a) ^ (c - a)) * normal;
+
+        // finalize barycentric coordinates
+        alpha /= areaABC;
+        beta  /= areaABC;
+        gamma /= areaABC;
+
+        i.setUVCoordinates(Vec2d(alpha, beta));
+        i.t = t;
+        i.setMaterial(Material());
+
+        return true;
+    }
     return false;
 }
 
