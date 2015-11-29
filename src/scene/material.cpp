@@ -47,7 +47,7 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
     // shadowAttenuation() methods for each light source in order to
     // compute shadows and light falloff.
 
-    return ke(i) + ka(i) + (kd(i) * diffuse) + (ks(i) * specular);
+    return ke(i) + prod( ka(i), scene->ambient() ) + (kd(i) * diffuse) + (ks(i) * specular);
 }
 
 TextureMap::TextureMap( string filename ) {
