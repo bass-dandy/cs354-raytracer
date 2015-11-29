@@ -100,7 +100,15 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 
     // Intersect ray with triangle ABC's supporting plane
     double d = normal * a;
+
+    if(normal * r.d == 0)
+        return false;
+
     double t = (d - (normal * r.p)) / (normal * r.d);
+
+    if(t <= RAY_EPSILON)
+        return false;
+
     Vec3d planarIntersect = r.at(t);
 
     double alpha = ((c - b) ^ (planarIntersect - b)) * normal;
@@ -117,9 +125,10 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
         gamma /= areaABC;
 
         i.setUVCoordinates(Vec2d(alpha, beta));
-        i.t = t;
+        i.setT(t);
         i.setMaterial(getMaterial());
         i.setN(normal);
+        i.setObject(this);
 
         return true;
     }
