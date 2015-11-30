@@ -41,7 +41,7 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
             halfAngle.normalize();
             double specular = pow( max(halfAngle * i.N, 0.0), shininess(i) );
 
-            color += (kd(i) * diffuse + ks(i) * specular) * lightIntensity;
+            color += (prod(kd(i), pLight->getColor()) * diffuse + ks(i) * specular) * lightIntensity;
         }
         // Handle colored shadows for transparent objects
         else if(si.material->Trans()) {
