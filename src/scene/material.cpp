@@ -28,9 +28,10 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
 
         double lightIntensity = pLight->distanceAttenuation(planarIntersect);
 
-        // Cast shadow ray
         isect si;
         ray shadow(planarIntersect, lightDirection, ray::SHADOW);
+        
+        // Handle shadows for opaque objects
         if(!scene->intersect(shadow, si)) {
             // Diffuse contribution
             double diffuse = max(lightDirection * i.N, 0.0);
@@ -42,14 +43,11 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
 
             color += (kd(i) * diffuse + ks(i) * specular) * lightIntensity;
         }
+        // Handle colored shadows for transparent objects
         else if(si.material->Trans()) {
             color += si.material->ka(si) * lightIntensity;
         }
     }
-    // You will need to call both the distanceAttenuation() and
-    // shadowAttenuation() methods for each light source in order to
-    // compute shadows and light falloff.
-
     return ke(i) + prod( ka(i), scene->ambient() ) + color;
 }
 
