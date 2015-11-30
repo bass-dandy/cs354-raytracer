@@ -14,8 +14,7 @@ extern bool debugMode;
 // the color of that point.
 Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
 {
-    double diffuse  = 0.0;
-    double specular = 0.0;
+    Vec3d color;
 
     Vec3d planarIntersect = r.at(i.t);
     Vec3d look = scene->getCamera().getEye() - planarIntersect;
@@ -27,27 +26,31 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
         Vec3d lightDirection = pLight->getDirection(planarIntersect);
         lightDirection.normalize();
 
+        double lightIntensity = pLight->distanceAttenuation(planarIntersect);
+
         // Cast shadow ray
         isect si;
         ray shadow(planarIntersect, lightDirection, ray::SHADOW);
         if(!scene->intersect(shadow, si)) {
-
             // Diffuse contribution
-            double curDiffuse = lightDirection * i.N;
-            diffuse += curDiffuse >= 0.0 ? curDiffuse : 0.0;
+            double diffuse = max(lightDirection * i.N, 0.0);
 
             // Specular contribution
             Vec3d halfAngle = (look + lightDirection) / 2.0;
             halfAngle.normalize();
-            double curSpecular = pow(halfAngle * i.N, shininess(i));
-            specular += curSpecular >= 0.0 ? curSpecular : 0.0;
+            double specular = pow( max(halfAngle * i.N, 0.0), shininess(i) );
+
+            color += (kd(i) * diffuse + ks(i) * specular) * lightIntensity;
+        }
+        else if(si.material->Trans()) {
+            color += si.material->ka(si) * lightIntensity;
         }
     }
     // You will need to call both the distanceAttenuation() and
     // shadowAttenuation() methods for each light source in order to
     // compute shadows and light falloff.
 
-    return ke(i) + prod( ka(i), scene->ambient() ) + (kd(i) * diffuse) + (ks(i) * specular);
+    return ke(i) + prod( ka(i), scene->ambient() ) + color;
 }
 
 TextureMap::TextureMap( string filename ) {
