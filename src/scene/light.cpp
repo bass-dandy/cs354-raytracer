@@ -31,13 +31,11 @@ Vec3d DirectionalLight::getDirection(const Vec3d& P) const
 
 double PointLight::distanceAttenuation(const Vec3d& P) const
 {
+    double dist = sqrt( pow(P[0] - position[0], 2) + 
+                        pow(P[1] - position[1], 2) + 
+                        pow(P[2] - position[2], 2) );
 
-  // YOUR CODE HERE
-
-  // You'll need to modify this method to attenuate the intensity 
-  // of the light based on the distance between the source and the 
-  // point P.  For now, we assume no attenuation and just return 1.0
-  return 1.0;
+    return 1.0 / (constantTerm + linearTerm * dist + quadraticTerm * dist * dist);
 }
 
 Vec3d PointLight::getColor() const
