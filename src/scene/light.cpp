@@ -13,9 +13,18 @@ double DirectionalLight::distanceAttenuation(const Vec3d& P) const
 
 Vec3d DirectionalLight::shadowAttenuation(const ray& r, const Vec3d& p) const
 {
-  // YOUR CODE HERE:
-  // You should implement shadow-handling code here.
-  return Vec3d(1,1,1);
+    ray shadowRay(p, getDirection(p), ray::SHADOW);
+    
+    isect i;
+    if(getScene()->intersect(shadowRay, i)) {
+        // Opaque objects block light completely
+        if(!i.getMaterial().Trans()) {
+            return Vec3d(0, 0, 0);
+        }
+        // Transparent objects attenuate the light
+        return prod(i.material->ka(i), color);
+    }
+    return Vec3d(1,1,1);
 }
 
 Vec3d DirectionalLight::getColor() const
@@ -53,7 +62,16 @@ Vec3d PointLight::getDirection(const Vec3d& P) const
 
 Vec3d PointLight::shadowAttenuation(const ray& r, const Vec3d& p) const
 {
-  // YOUR CODE HERE:
-  // You should implement shadow-handling code here.
-  return Vec3d(1,1,1);
+    ray shadowRay(p, getDirection(p), ray::SHADOW);
+
+    isect i;
+    if(getScene()->intersect(shadowRay, i) && (p - position).length() > (p - shadowRay.at(i.t)).length()) {
+        // Opaque objects block light completely
+        if(!i.getMaterial().Trans()) {
+            return Vec3d(0, 0, 0);
+        }
+        // Transparent objects attenuate the light
+        return prod(i.material->ka(i), color);
+    }
+    return Vec3d(1,1,1);
 }

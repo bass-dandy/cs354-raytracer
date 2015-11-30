@@ -28,11 +28,12 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
 
         double lightIntensity = pLight->distanceAttenuation(planarIntersect);
 
-        isect si;
-        ray shadow(planarIntersect, lightDirection, ray::SHADOW);
+        // Cast shadow ray
+        Vec3d shadow = pLight->shadowAttenuation(r, planarIntersect);
         
-        // Handle shadows for opaque objects
-        if(!scene->intersect(shadow, si)) {
+        // No opaque shadows
+        if(shadow[0] > 0 || shadow[1] > 0 || shadow[2] > 0) {
+
             // Diffuse contribution
             double diffuse = max(lightDirection * i.N, 0.0);
 
@@ -41,12 +42,10 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
             halfAngle.normalize();
             double specular = pow( max(halfAngle * i.N, 0.0), shininess(i) );
 
-            color += (prod(kd(i), pLight->getColor()) * diffuse + 
-                      prod(ks(i), pLight->getColor()) * specular) * lightIntensity;
-        }
-        // Handle colored shadows for transparent objects
-        else if(si.material->Trans()) {
-            color += si.material->ka(si) * lightIntensity;
+            Vec3d diffspec = prod(kd(i), pLight->getColor()) * diffuse + 
+                             prod(ks(i), pLight->getColor()) * specular;
+
+            color += prod(diffspec, shadow) * lightIntensity;
         }
     }
     return ke(i) + prod( ka(i), scene->ambient() ) + color;
