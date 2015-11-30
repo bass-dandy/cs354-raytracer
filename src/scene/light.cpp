@@ -35,7 +35,7 @@ double PointLight::distanceAttenuation(const Vec3d& P) const
                         pow(P[1] - position[1], 2) + 
                         pow(P[2] - position[2], 2) );
 
-    return 1.0 / (constantTerm + linearTerm * dist + quadraticTerm * dist * dist);
+    return min(1.0, 1.0 / (constantTerm + linearTerm * dist + quadraticTerm * dist * dist));
 }
 
 Vec3d PointLight::getColor() const
