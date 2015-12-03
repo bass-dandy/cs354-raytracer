@@ -77,7 +77,33 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
         if(m.Refl()) {
             Vec3d reflectDir = r.d - 2 * (i.N * r.d) * i.N;
             ray reflection(r.at(i.t), reflectDir, ray::REFLECTION);
-            colorC += traceRay(reflection, depth - 1);
+            colorC += prod( traceRay(reflection, depth - 1), m.kr(i) );
+        }
+        // Refract ray
+        if(m.Trans()) {
+            Vec3d normal = i.N;
+            double cosThetaI = normal * r.d;
+            double n;
+            
+            // Check if incident ray is inside or outside of the object
+            if(cosThetaI > 0) {
+                // inside
+                n = 1.0 / m.index(i);
+                normal = -i.N;
+                cosThetaI = -cosThetaI;
+            } else {
+                // outside
+                n = m.index(i);
+            }
+            double cosThetaT = 1.0 - (n * n) * (1.0 - cosThetaI * cosThetaI);
+
+            // Check for TIR, then do refraction
+            if(cosThetaT >= 0) {
+                cosThetaT = sqrt(cosThetaT);
+                Vec3d refractDir = (n * cosThetaI - cosThetaT) * normal - n * r.d;
+                ray refraction(r.at(i.t), refractDir, ray::REFRACTION);
+                colorC += prod( traceRay(refraction, depth - 1), m.kt(i) );
+            }
         }
     } else {
         // No intersection.  This ray travels to infinity, so we color
