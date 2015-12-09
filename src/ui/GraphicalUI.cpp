@@ -62,6 +62,15 @@ void GraphicalUI::cb_load_scene(Fl_Menu_* o, void* v)
 	}
 }
 
+void GraphicalUI::cb_load_cubemap(Fl_Menu_* o, void* v) {
+	pUI = whoami(o);
+	if(pUI->m_cubeMapChooser == NULL) {
+        pUI->m_cubeMapChooser = new CubeMapChooser();
+        pUI->m_cubeMapChooser->setCaller(pUI);
+    }
+    pUI->m_cubeMapChooser->show();
+}
+
 void GraphicalUI::cb_save_image(Fl_Menu_* o, void* v) 
 {
 	pUI = whoami(o);
@@ -228,8 +237,9 @@ void GraphicalUI::setRayTracer(RayTracer *tracer)
 // menu definition
 Fl_Menu_Item GraphicalUI::menuitems[] = {
 	{ "&File", 0, 0, 0, FL_SUBMENU },
-	{ "&Load Scene...",	FL_ALT + 'l', (Fl_Callback *)GraphicalUI::cb_load_scene },
-	{ "&Save Image...", FL_ALT + 's', (Fl_Callback *)GraphicalUI::cb_save_image },
+	{ "&Load Scene...",	  FL_ALT + 'l', (Fl_Callback *)GraphicalUI::cb_load_scene },
+	{ "&Load Cubemap...", FL_ALT + 'c', (Fl_Callback *)GraphicalUI::cb_load_cubemap },
+	{ "&Save Image...",   FL_ALT + 's', (Fl_Callback *)GraphicalUI::cb_save_image },
 	{ "&Exit", FL_ALT + 'e', (Fl_Callback *)GraphicalUI::cb_exit },
 	{ 0 },
 

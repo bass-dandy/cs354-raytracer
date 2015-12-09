@@ -58,7 +58,7 @@ protected:
 	bool m_smoothshade;  // turn on/off smoothshading?
 	bool		m_usingCubeMap;  // render with cubemap
 	bool		m_gotCubeMap;  // cubemap defined
-	int m_nFilterWidth;  // width of cubemap filter
+	int m_nFilterWidth = 2;  // width of cubemap filter
 };
 
 #endif

@@ -88,7 +88,7 @@ void CubeMapChooser::hide() {
 }
 
 void CubeMapChooser::cb_cancel(Fl_Widget* o, void* v) {
-	o->parent()->hide();
+	((CubeMapChooser*)(o->parent()->user_data()))->hide();
 }
 
 void CubeMapChooser::cb_ok(Fl_Widget* o, void* v) {
@@ -111,11 +111,11 @@ void CubeMapChooser::cb_ok(Fl_Widget* o, void* v) {
 		cm->setZnegMap(ch->cubeFace[5]);
 		ch->caller->setCubeMap(true);
 		ch->caller->useCubeMap(true);
-		ch->caller->m_filterSlider->activate();
-		ch->caller->m_cubeMapCheckButton->activate();
-		ch->caller->m_cubeMapCheckButton->value(1);
+		//ch->caller->m_filterSlider->activate();
+		//ch->caller->m_cubeMapCheckButton->activate();
+		//ch->caller->m_cubeMapCheckButton->value(1);
 	}
-	o->parent()->hide();
+	ch->hide();
 }
 
 void CubeMapChooser::cb_xpi(Fl_Widget* o, void* v) {
