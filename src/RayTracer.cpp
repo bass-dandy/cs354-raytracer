@@ -177,6 +177,7 @@ bool RayTracer::loadScene( char* fn ) {
 
 	if( !sceneLoaded() ) return false;
 
+    scene->buildBvhTree();
 	return true;
 }
 

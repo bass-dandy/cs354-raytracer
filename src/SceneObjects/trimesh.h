@@ -123,7 +123,7 @@ public:
 		return normal;
 	}
 
-    bool intersect(ray& r, isect& i ) const;
+    //bool intersect(ray& r, isect& i ) const;
     bool intersectLocal(ray& r, isect& i ) const;
 
     bool hasBoundingBoxCapability() const { return true; }
@@ -139,7 +139,7 @@ public:
         return localbounds;
     }
 
-    const BoundingBox& getBoundingBox() const { return localbounds; }
+    //const BoundingBox& getBoundingBox() const { return localbounds; }
 
  };
 

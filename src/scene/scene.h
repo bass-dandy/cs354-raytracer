@@ -28,7 +28,7 @@ class Light;
 class Scene;
 
 template <typename Obj>
-class KdTree;
+class BvhTree;
 
 class SceneElement {
 
@@ -219,6 +219,121 @@ protected:
   Material* material;
 };
 
+// TODO
+template <typename Obj>
+class BvhTree {
+
+public:
+
+    BvhTree(const std::vector<Obj*> &objects, const BoundingBox &sceneBB) {
+        root = new BvhNode(objects, sceneBB, 0);
+    }
+
+    bool intersect(ray &r, isect &i) {
+        return root->intersect(r, i);
+    }
+
+private:
+    
+    static const int MAX_DEPTH = 15;
+    static const int MIN_SIZE  = 3;
+
+    class BvhNode {
+
+    public:
+
+        BvhNode(const std::vector<Obj*> &objects, const BoundingBox &bb, int depth) {
+            this->bb = bb;
+
+            if(depth < MAX_DEPTH && objects.size() > MIN_SIZE) {
+                // find split dimension
+                Vec3d lengths = bb.getMax() - bb.getMin();
+
+                // split on x
+                if(lengths[0] > lengths[1] && lengths[0] > lengths[2]) {
+                    lengths[1] = 0;
+                    lengths[2] = 0;
+                }
+                // split on y
+                else if(lengths[1] > lengths[0] && lengths[1] > lengths[2]) {
+                    lengths[0] = 0;
+                    lengths[2] = 0;
+                }
+                // split on z
+                else {
+                    lengths[0] = 0;
+                    lengths[1] = 0;
+                }
+                double lRatio = 0.5;
+                double rRatio = 0.5;
+
+                // perform split
+                BoundingBox lBound(bb.getMin(), bb.getMax() - lengths * rRatio);
+                BoundingBox rBound(bb.getMin() + lengths * lRatio, bb.getMax());
+
+                // place objects into child bins
+                std::vector<Obj*> lObjects;
+                std::vector<Obj*> rObjects;
+
+                for(Obj* obj : objects) {
+                    if(obj->hasBoundingBoxCapability()) {
+
+                        if(obj->getBoundingBox().intersects(lBound)) {
+                            lObjects.push_back(obj);
+                        }
+                        if(obj->getBoundingBox().intersects(rBound)) {
+                            rObjects.push_back(obj);
+                        }
+                    }
+                }
+                lChild = new BvhNode(lObjects, lBound, depth + 1);
+                rChild = new BvhNode(rObjects, rBound, depth + 1);
+            } 
+            else {
+                this->objects = objects;
+            }
+        }
+
+        bool intersect(ray &r, isect &i) {
+            double tMin;
+            double tMax;
+
+            if(!bb.intersect(r, tMin, tMax)) {
+                return false;
+            }
+            // recur if this is not a leaf; BEWARE SHORT CIRCUIT EVALUATION
+            else if(lChild != NULL && rChild != NULL) {
+                bool have_left  = lChild->intersect(r, i);
+                bool have_right = rChild->intersect(r, i);
+                return have_left || have_right;
+            }
+            // If this is a leaf, test all objects
+            else {
+                bool have_one = false;
+
+                for(Obj* obj : objects) {
+                    isect ii;
+                    if( obj->intersect(r, ii) && (i.t < RAY_EPSILON || ii.t < i.t) ) {
+                        have_one = true;
+                        i = ii;
+                    }
+                }
+                return have_one;
+            }
+        }
+
+    private:
+        
+        BoundingBox bb;
+        std::vector<Obj*> objects;
+
+        BvhNode *lChild = 0;
+        BvhNode *rChild = 0;
+    };
+
+    BvhNode *root;
+};
+
 class Scene {
 
 public:
@@ -265,7 +380,7 @@ public:
 
   const BoundingBox& bounds() const { return sceneBounds; }
 
-  void buildKdTree();
+  void buildBvhTree();
 
  private:
   std::vector<Geometry*> objects;
@@ -286,7 +401,7 @@ public:
   // are exempt from this requirement.
   BoundingBox sceneBounds;
   
-  KdTree<Geometry>* kdtree;
+  BvhTree<Geometry>* bvh;
 
  public:
   // This is used for debugging purposes only.

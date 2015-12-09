@@ -50,6 +50,7 @@ Scene::~Scene() {
     for( g = objects.begin(); g != objects.end(); ++g ) delete (*g);
     for( l = lights.begin(); l != lights.end(); ++l ) delete (*l);
     for( t = textureCache.begin(); t != textureCache.end(); t++ ) delete (*t).second;
+    delete bvh;
 }
 
 // Get any intersection with an object.  Return information about the 
@@ -59,7 +60,7 @@ bool Scene::intersect(ray& r, isect& i) const {
 	double tmax = 0.0;
 	bool have_one = false;
 	typedef vector<Geometry*>::const_iterator iter;
-	for(iter j = objects.begin(); j != objects.end(); ++j) {
+	for(iter j = nonboundedobjects.begin(); j != nonboundedobjects.end(); ++j) {
 		isect cur;
 		if( (*j)->intersect(r, cur) ) {
 			if(!have_one || (cur.t < i.t)) {
@@ -68,10 +69,15 @@ bool Scene::intersect(ray& r, isect& i) const {
 			}
 		}
 	}
+	have_one = have_one || bvh->intersect(r, i);
 	if(!have_one) i.setT(1000.0);
 	// if debugging,
 	if (TraceUI::m_debug) intersectCache.push_back(std::make_pair(new ray(r), new isect(i)));
 	return have_one;
+}
+
+void Scene::buildBvhTree() {
+    bvh = new BvhTree<Geometry>(objects, sceneBounds);
 }
 
 TextureMap* Scene::getTexture(string name) {

@@ -678,7 +678,7 @@ void Parser::parseTrimesh(Scene* scene, TransformNode* transform, const Material
         if( error = tmesh->doubleCheck() )
           throw ParserException( error );
 
-        scene->add( tmesh );
+        //scene->add( tmesh );
         return;
       }
 

@@ -43,7 +43,7 @@ bool Trimesh::addFace( int a, int b, int c )
 
 
     // Don't add faces to the scene's object list so we can cull by bounding box
-    // scene->add(newFace);
+    scene->add(newFace);
     return true;
 }
 
@@ -81,9 +81,9 @@ bool Trimesh::intersectLocal(ray& r, isect& i) const
 	return have_one;
 }
 
-bool TrimeshFace::intersect(ray& r, isect& i) const {
-  return intersectLocal(r, i);
-}
+//bool TrimeshFace::intersect(ray& r, isect& i) const {
+//  return intersectLocal(r, i);
+//}
 
 // Intersect ray r with the triangle abc.  If it hits returns true,
 // and put the parameter in t and the barycentric coordinates of the
@@ -123,6 +123,17 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
         alpha /= areaABC;
         beta  /= areaABC;
         gamma /= areaABC;
+
+        // interpolate normal
+        if(!parent->vertNorms) {
+            parent->generateNormals();
+        }
+        Vec3d na = parent->normals[ids[0]];
+        Vec3d nb = parent->normals[ids[1]];
+        Vec3d nc = parent->normals[ids[2]];
+
+        normal = (1.0 - alpha - beta) * na + alpha * nb + beta * nc;
+        normal.normalize();
 
         i.setUVCoordinates(Vec2d(alpha, beta));
         i.setT(t);

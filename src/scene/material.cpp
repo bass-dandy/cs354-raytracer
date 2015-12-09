@@ -31,7 +31,7 @@ Vec3d Material::shade(Scene *scene, const ray& r, const isect& i) const
         // Cast shadow ray
         Vec3d shadow = pLight->shadowAttenuation(r, planarIntersect);
         
-        // No opaque shadows
+        // If no opaque shadows
         if(shadow[0] > 0 || shadow[1] > 0 || shadow[2] > 0) {
 
             // Diffuse contribution
