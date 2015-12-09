@@ -42,6 +42,7 @@ public:
 	bool	smShadSw() const { return m_smoothshade; }
 
 	static bool m_debug;
+	int m_aa = 1;   // square root of antialias sample size
 
 protected:
 	RayTracer*	raytracer;

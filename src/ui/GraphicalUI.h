@@ -44,6 +44,7 @@ public:
 	Fl_Slider*			m_treeDepthSlider;
 	Fl_Slider*			m_leafSizeSlider;
 	Fl_Slider*			m_filterSlider;
+	Fl_Slider*			m_aaSlider;
 
 	Fl_Check_Button*	m_debuggingDisplayCheckButton;
 	Fl_Check_Button*	m_aaCheckButton;
@@ -91,6 +92,7 @@ private:
 	static void cb_sizeSlides(Fl_Widget* o, void* v);
 	static void cb_depthSlides(Fl_Widget* o, void* v);
 	static void cb_refreshSlides(Fl_Widget* o, void* v);
+	static void cb_aaSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);

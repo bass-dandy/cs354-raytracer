@@ -126,6 +126,11 @@ void GraphicalUI::cb_refreshSlides(Fl_Widget* o, void* v)
 	((GraphicalUI*)(o->user_data()))->refreshInterval=clock_t(((Fl_Slider *)o)->value()) ;
 }
 
+void GraphicalUI::cb_aaSlides(Fl_Widget* o, void* v)
+{
+	((GraphicalUI*)(o->user_data()))->m_aa = int( ((Fl_Slider *)o)->value() ) ;
+}
+
 void GraphicalUI::cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v)
 {
 	pUI=(GraphicalUI*)(o->user_data());
@@ -296,6 +301,19 @@ GraphicalUI::GraphicalUI() : refreshInterval(10) {
 	m_refreshSlider->value(refreshInterval);
 	m_refreshSlider->align(FL_ALIGN_RIGHT);
 	m_refreshSlider->callback(cb_refreshSlides);
+
+	// install antialiasing slider
+	m_aaSlider = new Fl_Value_Slider(10, 115, 180, 20, "Antialiasing (sqrt)");
+	m_aaSlider->user_data((void*)(this));	// record self to be used by static callback functions
+	m_aaSlider->type(FL_HOR_NICE_SLIDER);
+	m_aaSlider->labelfont(FL_COURIER);
+	m_aaSlider->labelsize(12);
+	m_aaSlider->minimum(1);
+	m_aaSlider->maximum(4);
+	m_aaSlider->step(1);
+	m_aaSlider->value(m_aa);
+	m_aaSlider->align(FL_ALIGN_RIGHT);
+	m_aaSlider->callback(cb_aaSlides);
 
 	// set up debugging display checkbox
 	m_debuggingDisplayCheckButton = new Fl_Check_Button(10, 429, 140, 20, "Debugging display");
