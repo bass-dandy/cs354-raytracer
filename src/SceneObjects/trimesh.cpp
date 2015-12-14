@@ -132,7 +132,7 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
         Vec3d nb = parent->normals[ids[1]];
         Vec3d nc = parent->normals[ids[2]];
 
-        normal = (1.0 - alpha - beta) * na + alpha * nb + beta * nc;
+        normal = alpha * na + beta * nb + gamma * nc;
         normal.normalize();
 
         i.setUVCoordinates(Vec2d(alpha, beta));
