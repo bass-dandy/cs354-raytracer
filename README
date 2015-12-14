@@ -1,0 +1,21 @@
+All required features have been implemented. Some notes:
+
+1. Smooth shading is enabled by default on the trimesh models that
+   support it, and it cannot be turned off. 
+
+2. cubemaps can be loaded by clicking "file" > "load cubemap" or hitting
+   [alt] + [c]. Once a cubemap is loaded, cubemapping cannot be disabled.
+
+3. Antialiasing is controlled via the antialiasing slider. AA is implemented
+   using plain old supersampling, and the slider values correspond to the
+   square root of the number of samples used per pixel (ie 1 = no AA, 2 = 4x,
+   3 = 9x, 4 = 16x).
+
+4. phong illumination uses the blinn-phong model, so specular highlights might
+   appear larger than the sample code
+
+5. for acceleration, I used a bounding volume hierarchy that chooses splits
+   based on the longest dimension of the current bounding box and then splits
+   the current box in half along the chosen dimension. Obviously there are
+   more effective acceleration structures, but this method was easy to
+   implement and has very little computational overhead.
